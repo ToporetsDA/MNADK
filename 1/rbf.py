@@ -1,4 +1,6 @@
 import os
+import time
+import json
 # Обмежуємо кількість потоків BLAS/OMP щоб не навантажувати систему
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -44,6 +46,9 @@ def run_rbf(param_n_centers=None):
     sigma = np.mean(np.min(dists, axis=1))
 
     # 3) RBF-простір
+
+    start_eval = time.time()
+
     (_, t_rbf_train) = measure_time(rbf_transform, x_train, centers, sigma)
     R_train = rbf_transform(x_train, centers, sigma)
 
@@ -61,6 +66,10 @@ def run_rbf(param_n_centers=None):
     # 5) оцінка
     preds = R_test @ W
     preds = np.argmax(preds, axis=1)
+
+    end_eval = time.time()
+    test_time = end_eval - start_eval
+
     acc = accuracy_score(y_test, preds)
 
     # загальний час
@@ -68,15 +77,29 @@ def run_rbf(param_n_centers=None):
 
     model_data = None
 
-    if param_n_centers is not None:
+    weights = W.tolist()
+
+    if param_n_centers is not None: # experiment
         model_data = {
             "PARAM___n_centers": n_centers,
-            "weights": W.tolist(),
+            "weights": weights,
             "activation": "tanh",
             # "train_output": y_train.tolist(),
             # "test_output": y_test.tolist(),
             # "train_input": x_train.tolist(),
             # "test_input": x_test.tolist()
         }
+    else: # train
+        model_data = {
+            "n_centers": n_centers,
+            "centers": centers.tolist(),
+            "sigma": float(sigma),
+            "W": weights
+        }
 
-    return total_time, _, acc, model_data
+        name = input("\nОберіть назву мережі: ").strip()
+
+        with open(f"1/models/rbf_{name}.json", "w") as f:
+            json.dump(model_data, f)
+
+    return total_time, test_time, acc, model_data

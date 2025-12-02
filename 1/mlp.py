@@ -33,7 +33,9 @@ def run_mlp(lr=None):
 
     loss, acc = model.evaluate(x_test, y_test_oh, verbose=0)
 
-    if lr is not None:
+    model_data = None
+
+    if lr is not None: # experiment
         model_data = {
             "PARAM___learning_rates": lr,
             "weights": [w.tolist() for w in model.get_weights()],
@@ -45,5 +47,8 @@ def run_mlp(lr=None):
             # "train_input": x_train.tolist(),
             # "test_input": x_test.tolist()
         }
+    else: # train
+        name = input("\nОберіть назву мережі: ").strip()
+        model.save(f"1/models/mlp_{name}.keras")
 
     return train_time, test_time, acc, model_data
