@@ -99,7 +99,7 @@ def run_experiment():
             {"x": rbf_centers_list, "y": rbf_times, "title": "RBF: Час навчання vs кількість центрів"}
         ]
 
-        plot_experiment_subplots(subplots_info, "1/results/experiment_all_in_one.png")
+        plot_experiment_subplots(subplots_info, "1/results/exp/experiment_all_in_one.png")
 
         option = "A"
 
@@ -109,17 +109,17 @@ def run_experiment():
         subplots_info = [
             {"x": learning_rates,   "y": slp_times, "title": "SLP: Час навчання vs learning rate", "xscale": "log"}
         ]
-        plot_experiment_subplots(subplots_info, "1/results/slp_time_vs_lr.png")
+        plot_experiment_subplots(subplots_info, "1/results/exp/slp_time_vs_lr.png")
         # окремо MLP
         subplots_info = [
             {"x": learning_rates,   "y": mlp_times, "title": "MLP: Час навчання vs learning rate", "xscale": "log"}
         ]
-        plot_experiment_subplots(subplots_info, "1/results/mlp_time_vs_lr.png")
+        plot_experiment_subplots(subplots_info, "1/results/exp/mlp_time_vs_lr.png")
         # окремо RBF
         subplots_info = [
             {"x": rbf_centers_list, "y": rbf_times, "title": "RBF: Час навчання vs кількість центрів"}
         ]
-        plot_experiment_subplots(subplots_info, "1/results/rbf_time_vs_centers.png")
+        plot_experiment_subplots(subplots_info, "1/results/exp/rbf_time_vs_centers.png")
 
         option = "B"
 
@@ -156,7 +156,7 @@ def run_experiment():
         }
     }
 
-    with open(f"1/results/experiment_results_{option}.json", "w", encoding="utf-8") as f:
+    with open(f"1/results/exp/experiment_results_{option}.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
 
     print("\n=== Експеримент завершено! ===")

@@ -2,6 +2,8 @@ import json
 import time
 import numpy as np
 
+from tensorflow.keras.models import load_model as keras_load_model
+
 #  RBF utils
 
 def rbf_transform(X, centers, sigma):
@@ -25,6 +27,10 @@ def activation(x, act):
         return 1.0 / (1.0 + np.exp(-x))
     if act == "linear":
         return x
+    if act == "softmax":
+        # числова стабілізація
+        e = np.exp(x - np.max(x, axis=1, keepdims=True))
+        return e / np.sum(e, axis=1, keepdims=True)
     raise ValueError(f"Unknown activation: {act}")
 
 def forward_mlp(X, weights, biases, activations):
@@ -42,35 +48,43 @@ def predict_mlp(X, weights, biases, activations):
 
 def load_model(model_name):
 
-    filename = "1/models/" + model_name + ".json"
-    data = None
+    filename = "1/models/" + model_name
 
-    with open(filename, "r") as f:
-        data = json.load(f)
-    
-    if data is None:
-        raise ValueError("No such model")
+    try: # It's RBF
+        with open(filename + ".json", "r") as f:
+            data = json.load(f)
 
-    # Detect model type
+            if "centers" in data and "sigma" in data and "W" in data:
+                
+                centers = np.array(data["centers"])
+                sigma = data["sigma"]
+                W = np.array(data["W"])
 
-    if "centers" in data and "sigma" in data and "W" in data:
-        # It's RBF
-        centers = np.array(data["centers"])
-        sigma = data["sigma"]
-        W = np.array(data["W"])
+                return {
+                    "type": "RBF",
+                    "centers": centers,
+                    "sigma": sigma,
+                    "W": W
+                }
+    except FileNotFoundError:
+        pass
 
-        return {
-            "type": "RBF",
-            "centers": centers,
-            "sigma": sigma,
-            "W": W
-        }
+    try: # It's MLP or SLP
+        model = keras_load_model(filename + ".keras")
 
-    if "weights" in data and "biases" in data and "activations" in data:
-        # It's MLP or SLP
-        weights = [np.array(w) for w in data["weights"]]
-        biases  = [np.array(b) for b in data["biases"]]
-        activations = data["activations"]
+        weights = []
+        biases = []
+        activations = []
+
+        for layer in model.layers:
+            if hasattr(layer, "get_weights"):
+                Wb = layer.get_weights()
+                if len(Wb) == 2:
+                    W, b = Wb
+                    weights.append(W)
+                    biases.append(b)
+                    # Ось тут витягуємо *справжню* активацію
+                    activations.append(layer.activation.__name__)
 
         return {
             "type": "MLP",
@@ -78,6 +92,8 @@ def load_model(model_name):
             "biases": biases,
             "activations": activations
         }
+    except FileNotFoundError:
+        pass
 
     raise ValueError("Unknown model format")
 
