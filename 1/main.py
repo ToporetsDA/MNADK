@@ -13,9 +13,12 @@ from tensorflow.keras.datasets import mnist
 from hopfield import run_hopfield
 from elman import run_elman
 from utils import load_mnist, one_hot
+from evaluate_hopfield import evaluate_hopfield
+from evaluate_elman import evaluate_elman
+
 
 def main():
-    # Lab 1 (1-6), Lab 2 (7-8)
+    # Lab 1 (1-6), Lab 2 (7-10)
     print("Оберіть мережі для запуску:")
     print("1 — Одношаровий персептрон (SLP)")
     print("2 — Багатошаровий персептрон (MLP)")
@@ -25,6 +28,8 @@ def main():
     print("6 — Використати існуючу мережу")
     print("7 — Мережа Хопфілда")
     print("8 — Мережа Елмана")
+    print("9 — Використати збережену мережу Хопфілда")
+    print("10 — Використати збережену мережу Елмана")
     
     choice = input("\nВаш вибір: ").strip()
     
@@ -82,6 +87,18 @@ def main():
 
         tr, te, err, _ = run_elman(x_train[:500], y_train_oh[:500], x_test[:100], y_test_oh[:100])
         print(f"[Elman] Час навчання: {tr:.6f} сек | Час класифікації: {te:.6f} сек | Помилка: {err:.4f}")
+    
+    elif choice == "9":
+        name = input("Введіть назву моделі Хопфілда: ").strip()
+
+        te, err = evaluate_hopfield(name)
+        print(f"[Hopfield] Час класифікації: {te:.6f} сек | Помилка: {err:.4f}")
+
+    elif choice == "10":
+        name = input("Введіть назву моделі Елмана: ").strip()
+
+        te, err = evaluate_elman(name)
+        print(f"[Elman] Час класифікації: {te:.6f} сек | Помилка: {err:.4f}")
 
     else:
         print("Невідомий вибір.")

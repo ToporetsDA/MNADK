@@ -100,7 +100,7 @@ def run_elman(X_train, y_train, X_test, y_test, name="elman_model"):
         "by": net.by.tolist(),
         "train_input": X_train.tolist(),
         "test_input": X_test.tolist(),
-        "test_output": y_pred.tolist(),
+        "test_output": y_test.tolist(),
         "train_time": train_time,
         "test_time": test_time,
         "error": error

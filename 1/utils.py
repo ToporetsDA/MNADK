@@ -25,7 +25,6 @@ def measure_time(func, *args, **kwargs):
 
     return result, end - start
 
-# Lab 1
 # Lab 2
 
 import json
@@ -37,4 +36,6 @@ def save_model_data(model_name, model_data, folder="1/results/models"):
     with open(f"{folder}/{model_name}.json", "w", encoding="utf-8") as f:
         json.dump(model_data, f, indent=4, ensure_ascii=False)
 
-# Lab 2
+def load_model_data(name):
+    with open(f"models/{name}.json") as f:
+        return json.load(f)
