@@ -37,6 +37,4 @@ def evaluate_elman(name):
     true  = np.argmax(y_true, axis=1)
     error = np.mean(preds != true)
 
-    print(f"[Elman] Час класифікації: {test_time:.6f} сек | Помилка: {error:.4f}")
-
     return test_time, error

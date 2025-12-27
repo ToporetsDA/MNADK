@@ -16,9 +16,17 @@ from utils import load_mnist, one_hot
 from evaluate_hopfield import evaluate_hopfield
 from evaluate_elman import evaluate_elman
 
+# Lab 3
+from lvq import run_lvq
+from som import run_som
+from evaluate_lvq import evaluate_lvq
+from evaluate_som import evaluate_som
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 def main():
-    # Lab 1 (1-6), Lab 2 (7-10)
+    # Lab 1 (1-6), Lab 2 (7-10), Lab 3 (11-12)
     print("Оберіть мережі для запуску:")
     print("1 — Одношаровий персептрон (SLP)")
     print("2 — Багатошаровий персептрон (MLP)")
@@ -30,6 +38,10 @@ def main():
     print("8 — Мережа Елмана")
     print("9 — Використати збережену мережу Хопфілда")
     print("10 — Використати збережену мережу Елмана")
+    print("11 — Мережа LVQ")
+    print("12 — Мережа SOM")
+    print("13 — Використати збережену мережу LVQ")
+    print("14 — Використати збережену мережу SOM")
     
     choice = input("\nВаш вибір: ").strip()
     
@@ -99,6 +111,48 @@ def main():
 
         te, err = evaluate_elman(name)
         print(f"[Elman] Час класифікації: {te:.6f} сек | Помилка: {err:.4f}")
+
+    elif choice == "11":
+        x_train, y_train, x_test, y_test = load_mnist()
+        y_train_oh = one_hot(y_train)
+        y_test_oh = one_hot(y_test)
+
+        tr, tr_eval, tr_err, _ = run_lvq(
+            x_train[:500], y_train_oh[:500], x_test[:100], y_test_oh[:100]
+        )
+
+        print(f"[LVQ] Час навчання: {tr:.6f} сек | Час класифікації: {tr_eval:.6f} сек | Помилка : {tr_err:.4f}")
+
+    elif choice == "12":
+        x_train, _, x_test, _ = load_mnist()
+        train_time, train_eval_time, test_eval_time, test_eval_time2, model_data = run_som(x_train[:500], x_test[:100])
+        print(f"[SOM] Час навчання: {train_time:.6f} сек | Час класифікації навчальної вибірки: {train_eval_time:.6f} сек | "
+              f"Час класифікації тестової вибірки: {test_eval_time:.6f} сек")
+        
+        weights = np.array(model_data["weights"])  # карта нейронів після навчання
+        plt.figure(figsize=(6,6))
+
+        # Якщо дані 2D, можна просто scatter
+        for i in range(weights.shape[0]):
+            for j in range(weights.shape[1]):
+                plt.scatter(weights[i,j,0], weights[i,j,1], c='red')
+        plt.title("SOM weights map")
+        plt.show()
+
+    elif choice == "13":
+        name = input("Введіть назву моделі LVQ: ").strip()
+
+        ts_e, ts_err = evaluate_lvq(name)
+        print(f"[LVQ] Час класифікації тестової вибірки: {ts_e:.6f} сек | "
+            f"Помилка тестової вибірки: {ts_err:.4f}")
+
+    elif choice == "14":
+        name = input("Введіть назву моделі SOM: ").strip()
+
+        ts_e = evaluate_som(name)
+
+        print(f"[SOM] Час класифікації тестової вибірки: {ts_e:.6f} сек")
+
 
     else:
         print("Невідомий вибір.")
