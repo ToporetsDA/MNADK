@@ -1,3 +1,5 @@
+# Lab 1
+
 import time
 import numpy as np
 from tensorflow.keras.datasets import mnist
@@ -22,3 +24,17 @@ def measure_time(func, *args, **kwargs):
     end = time.time()
 
     return result, end - start
+
+# Lab 1
+# Lab 2
+
+import json
+
+def save_model_data(model_name, model_data, folder="1/results/models"):
+    """Зберігає словник model_data у JSON файл"""
+    import os
+    os.makedirs(folder, exist_ok=True)
+    with open(f"{folder}/{model_name}.json", "w", encoding="utf-8") as f:
+        json.dump(model_data, f, indent=4, ensure_ascii=False)
+
+# Lab 2

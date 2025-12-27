@@ -1,25 +1,33 @@
+# Lab 1
 from slp import run_slp
 from mlp import run_mlp
 from rbf import run_rbf
 from experiment import run_experiment
 from predict import evaluate
-
 import json
 import numpy as np
 
 from tensorflow.keras.datasets import mnist
 
+# Lab 2
+from hopfield import run_hopfield
+from elman import run_elman
+from utils import load_mnist, one_hot
+
 def main():
+    # Lab 1 (1-6), Lab 2 (7-8)
     print("Оберіть мережі для запуску:")
     print("1 — Одношаровий персептрон (SLP)")
     print("2 — Багатошаровий персептрон (MLP)")
     print("3 — RBF-мережа")
-    print("4 — Усі одразу")
+    print("4 — Усі моделі з Lab1 одразу")
     print("5 — Дослід: графік часу від learning rate")
     print("6 — Використати існуючу мережу")
-
+    print("7 — Мережа Хопфілда")
+    print("8 — Мережа Елмана")
+    
     choice = input("\nВаш вибір: ").strip()
-
+    
     if choice == "1":
         tr, te, acc, _ = run_slp()
         print(f"\n[SLP] Час навчання: {tr:.2f} сек | Час класифікації: {te:.2f} сек | Точність: {acc:.4f}")
@@ -59,6 +67,22 @@ def main():
         with open(f"1/results/models/{name}.json", "w", encoding="utf-8") as f:
             json.dump(preds.tolist(), f, separators=(",", ":"), ensure_ascii=False)
     
+    elif choice == "7":
+        # Для демонстрації генеруємо бінарні патерни
+        patterns_train = np.random.choice([-1, 1], size=(5, 16))
+        patterns_test = patterns_train.copy()
+
+        tr, te, err, _ = run_hopfield(patterns_train, patterns_test)
+        print(f"[Hopfield] Час навчання: {tr:.6f} сек | Час класифікації: {te:.6f} сек | Помилка: {err:.4f}")
+
+    elif choice == "8":
+        x_train, y_train, x_test, y_test = load_mnist()
+        y_train_oh = one_hot(y_train)
+        y_test_oh = one_hot(y_test)
+
+        tr, te, err, _ = run_elman(x_train[:500], y_train_oh[:500], x_test[:100], y_test_oh[:100])
+        print(f"[Elman] Час навчання: {tr:.6f} сек | Час класифікації: {te:.6f} сек | Помилка: {err:.4f}")
+
     else:
         print("Невідомий вибір.")
 
